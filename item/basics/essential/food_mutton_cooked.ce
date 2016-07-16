@@ -1,5 +1,5 @@
+from core.helper import callEvent
 from core.template.item import CraftResult, Item, Genus
-from survival.system.survivalsys import useFood
 
 mutton = Item(
     name = "MuttonCooked",
@@ -23,4 +23,16 @@ mutton.craftable(
     ]
 )
 
-mutton.usable(useFood, 150)
+
+def consume(amount, args, stats=None):
+    # Consume food Event (player, food_amount, consumed)
+    result = callEvent("consume_food", args['player'], amount, consumed=False)
+    if not result.consumed:
+        # restore HP
+        pass
+    else:
+        # survival mod handled hunger
+        pass
+
+
+mutton.usable(consume, 150)
