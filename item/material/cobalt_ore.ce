@@ -1,0 +1,8 @@
+from core.template.item import Item, ScrapTier
+
+Item(
+    name = "Cobalt Ore",
+    classification = "Mineral",
+    stack = 99,
+    scraps = ScrapTier.Five
+)

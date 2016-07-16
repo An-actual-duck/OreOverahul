@@ -1,0 +1,11 @@
+from core.template.item import Item
+from survival.system.survivalsys import useFood
+
+mutton = Item(
+    name = "MuttonRaw",
+    classification = "Crafted",
+    genus = "mutton_raw",
+    stack = 99
+)
+
+mutton.usable(useFood, 50)

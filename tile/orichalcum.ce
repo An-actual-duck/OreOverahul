@@ -1,0 +1,15 @@
+from core.template.item import Tile
+from siege.graphic import Color
+
+Tile(
+    name = "Orichalcum",
+    drops = 'orichalcum_ore',
+    durability = 1400,
+    priority = 150,
+    level = 72,
+    groups = ['ore', 'natural'],
+    sounds = 'ore',
+    particleColor = Color(158, 52, 194),
+    mapGroundColor = Color(158, 52, 194),
+    mapWallColor = Color(123, 39, 150)
+)

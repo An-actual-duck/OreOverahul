@@ -1,0 +1,26 @@
+from core.template.item import Item, Material, ScrapTier, CraftResult
+
+ingot = Item(
+    name = "Platinum Ingot",
+    classification = "Crafted",
+    stack = 99,
+    scraps = ScrapTier.Five,
+    tags = ['ingot']
+)
+
+ingot.craftable(
+    category = "Recipes",
+    subcategory = "Smelting",
+    level = 43,
+    experience = 15,
+    serviceRequired = 'Forge',
+    materials = [
+        Material('platinum_ore', quantity=5),
+    ],
+    results = [
+        CraftResult(quantity=1),
+        CraftResult(quantity=2, quality=150),
+        CraftResult(quantity=3, quality=200),
+        CraftResult(quantity=4, quality=250)
+    ]
+)

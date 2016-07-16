@@ -1,0 +1,71 @@
+from core.template.animation import Frame, Frames
+from core.template.item import Item, Axis
+from core.component.persistent_timer import PersistentTimer
+
+from random import randint
+
+from siege.util import minutes, seconds, Vector, PixelRect
+from siege import InventoryItem
+
+
+apple_tree = Item(
+    name = "AppleTree",
+    stack = 5,
+    useTime = 20
+)
+
+apple_tree.placeable(floor_axis = Axis(area=PixelRect(25, 0, 110, 120)),)
+
+# From sapling to full grown
+growing = apple_tree.getSpriteFrames(
+    frames = [
+        Frame(0, 0),
+    ],
+    size = (135, 120)
+)
+
+# Before harvestable but full grown
+grown = apple_tree.getSpriteFrames(
+    frames = [
+        Frame(0, 120),
+    ],
+    size = (135, 120)
+)
+
+# When it is harvestable
+pickable = apple_tree.getSpriteFrames(
+    frames = [
+        Frame(0, 240),
+    ],
+    size = (135, 120)
+)
+
+apple_tree.animations(
+    start='growing',
+    growing=Frames(growing.loop(), time=1000),  # 3 minute interval
+    grown=Frames(grown.loop(), time=1000),  # time doesn't matter
+    pickable=Frames(pickable.loop(), time=1000)
+)
+
+
+def appleTreeReady(entity):
+    if entity.animation.getAnimationName() == "grown":
+        entity.animation.play('pickable')  # Set the tree to a pickable state
+    if entity.animation.getAnimationName() == "growing":
+        entity.animation.play('grown')
+
+apple_tree.add(PersistentTimer(minutes(10), appleTreeReady))  # Tree is harvestable every 4 minutes
+
+
+@apple_tree.hasEvent
+def interact(player, entity, position):
+    if entity.animation.getAnimationName() == 'pickable':
+        realm = entity.realm
+        roll = randint(1, 100)  # roll a random amount to drop
+        if roll > 0:  # 50% chance to drop 1 apple
+            realm.dropped.create(InventoryItem('apple'), entity.getPosition(), Vector(0, -7), seconds(1))
+        if roll > 50:  # 30% chance to drop 2 apple
+            realm.dropped.create(InventoryItem('apple'), entity.getPosition(), Vector(-3, -7), seconds(1))
+        if roll >= 80:  # 20% chance to drop 3 apple
+            realm.dropped.create(InventoryItem('apple'), entity.getPosition(), Vector(3, -7), seconds(1))
+        entity.animation.play('grown')

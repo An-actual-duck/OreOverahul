@@ -1,0 +1,15 @@
+from core.template.item import Tile
+from siege.graphic import Color
+
+Tile(
+    name = "Platinum",
+    drops = 'platinum_ore',
+    durability = 660,
+    priority = 100,
+    level = 48,
+    groups = ['ore', 'natural'],
+    sounds = 'ore',
+    particleColor = Color(95, 98, 99),
+    mapGroundColor = Color(95, 98, 99),
+    mapWallColor = Color(95, 98, 99)
+)

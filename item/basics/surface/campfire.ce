@@ -1,0 +1,141 @@
+from functools import partial
+
+from core.component.data import DataDefinition
+from core.template.animation import Frame, Frames
+from core.template.item import Axis, CraftResult, Item, Genus, ScrapTier
+
+from siege import game
+from siege.log import Log
+from siege.graphic import Color
+from siege.network import NetworkManager
+from siege.util import PixelRect, PixelVector, Random, RangeFloat, RangeUint, Rect, seconds, Vector
+
+
+campfire = Item(name = 'Campfire')
+campfire.provideServices('Campfire')
+
+campfire.craftable(
+    category = "Basics",
+    subcategory = "Surfaces",
+    level = 1,
+    experience = 15,
+    materials = [
+        Material('lumber', quantity=16),
+        Material('vine', quantity=8),
+        Material('stone', quantity=2)
+    ]
+)
+
+campfire.placeable(floor_axis = Axis(area=PixelRect(0, 0, 50, 50)),)
+
+emberFrequency = 1
+flickerFrequency = 30
+flickerRatio = 10
+flickerRecoverMax = 4
+lightIntensity = 128
+lightColor = Color(240, 200, 160)
+campfire.hasLightSource(
+    color = lightColor,
+    center = Vector(4, 6),
+    intensity = lightIntensity,
+    onVisibleFrequency = RangeUint(seconds(60), seconds(120))
+)
+
+campfire.hasPhysics(body=Rect(-4, -2, 8, 8), immovable=True, simulated=True, gravity=Vector(0, 0))
+
+
+@campfire.onCreate
+def onCreate(entity):
+    if NetworkManager.isHost():
+        entity.physics.isUnderwater.onChange.listen(partial(handlecampfireUnderwater, entity))
+        entity.light.getSource('main').onVisible = partial(campfireOnVisible, entity, game.settings)
+        game.timer.add(0, partial(updateInitialcampfire, entity.light))
+
+
+@campfire.hasEvent
+def attached(entity, attachedEntity, name, offset):
+    if attachedEntity.physics.isUnderwater.get():
+        entity.data.data['underwater'] += 1
+    attachedEntity.physics.isUnderwater.onChange.listen(partial(handlecampfireUnderwater, entity))
+
+
+@campfire.hasEvent
+def detached(entity, attachedEntity, name):
+    if attachedEntity.physics.isUnderwater.get():
+        entity.data.data['underwater'] -= 1
+    attachedEntity.physics.isUnderwater.onChange.remove(partial(handlecampfireUnderwater, entity))
+
+
+def updateInitialcampfire(campfireLight):
+    campfireLight.getSource("main").enabled = True
+
+def handlecampfireUnderwater(entity, previous, currentUnderwater):
+    data = entity.data.data
+    underwaterCount = data['underwater']
+    if not previous and currentUnderwater:
+        underwaterCount += 1
+    elif previous and not currentUnderwater:
+        underwaterCount -= 1
+    data['underwater'] = underwaterCount
+    enabled = underwaterCount == 0
+    source = entity.light.getSource('main')
+    if enabled != source.enabled:
+        animation = entity.animation
+        currentAnimation = animation.getAnimationName()
+        if enabled and currentAnimation.endswith("_off"):
+            currentAnimation = currentAnimation[:-4]
+        elif not enabled:
+            currentAnimation += "_off"
+        animation.play(currentAnimation)
+        if "hold" in currentAnimation:
+            animation.defaultAnimation = currentAnimation
+        source.enabled = enabled
+
+def emitEmbers(entity):
+    position = entity.physics.getCenter()
+    position.x -= 2
+    position.y -= 10
+    realm = entity.realm
+    emitter = game.particles.create(realm.uid, realm.loopWidth, position, amount=Random.get(1, 3), texturePath="mods/core/talent/syle/fire_particle.png", hasPhysics=True)
+    emitter.x.setRange(RangeFloat(-1.2, 1.2))
+    emitter.y.setRange(RangeFloat(-1, 0))
+    emitter.alpha.set(255, 0, duration=500).delay(RangeUint(seconds(2), seconds(3)))
+    emitter.scale.setList([Vector(1, 1), Vector(2, 2)], [Vector(0.5, 0.5), Vector(1, 1)])
+    emitter.rotation.setRange(0, RangeFloat(-90, 90))
+    emitter.gravity = Vector(0.0, 0.08)
+    emitter.friction = Vector(0.1, 0.0)
+    emitter.restitution = Vector(0.2, 0.4)
+    emitter.addLightSource(intensity=lightIntensity, color=lightColor)
+
+
+def flickercampfire(source, settings):
+    if settings.lightFlicker:
+        if source.intensity < lightIntensity:
+            source.intensity += Random.get(min(lightIntensity - source.intensity, flickerRecoverMax))
+        else:
+            source.intensity = lightIntensity
+            if Random.get(flickerFrequency) == 0:
+                source.intensity -= Random.get(flickerRatio)
+    else:
+        source.intensity = lightIntensity
+
+def campfireOnVisible(entity, settings, source, frameTime):
+    if source.enabled:
+        emitEmbers(entity)
+        flickerTorch(source, settings)
+
+lit = campfire.getSpriteFrames(
+    frames = [
+        Frame(0, 0),
+        Frame(50, 0),
+        Frame(100, 0),
+        Frame(150, 0),
+        Frame(200, 0)
+    ],
+    size = PixelVector(50, 50)
+)
+
+campfire.animations(
+    start = 'lit',
+    lit = Frames(lit(1,2,3,4,5), time=100)
+)

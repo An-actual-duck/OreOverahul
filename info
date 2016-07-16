@@ -1,0 +1,12 @@
+{
+    "title": "Ore Overhaul",
+    "author": "An actual duck",
+    "description": "Updating",
+    "version": "1.0",
+    "priority": 1,
+    "tags": [
+        "Item",
+        "Worldgen"
+    ],
+    "workshopid": 718521609
+}

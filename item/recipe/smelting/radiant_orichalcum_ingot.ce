@@ -1,0 +1,27 @@
+from core.template.item import Item, Material, ScrapTier, CraftResult
+
+ingot = Item(
+    name = "Radiant Orichalcum Ingot",
+    classification = "Crafted",
+    stack = 99,
+    scraps = ScrapTier.Six,
+    tags = ['ingot']
+)
+
+ingot.craftable(
+    category = "Recipes",
+    subcategory = "Smelting",
+    level = 83,
+    experience = 20,
+    serviceRequired = 'Forge',
+    materials = [
+        Material('orichalcum_ingot'),
+        Material('malachite_ingot')
+    ],
+    results = [
+        CraftResult(quantity=1),
+        CraftResult(quantity=2, quality=150),
+        CraftResult(quantity=3, quality=200),
+        CraftResult(quantity=4, quality=250)
+    ]
+)

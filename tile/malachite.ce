@@ -1,0 +1,15 @@
+from core.template.item import Tile
+from siege.graphic import Color
+
+Tile(
+    name = "Malachite",
+    drops = 'malachite_ore',
+    durability = 440,
+    priority = 140,
+    level = 36,
+    groups = ['ore', 'natural'],
+    sounds = 'ore',
+    particleColor = Color(75, 250, 90),
+    mapGroundColor = Color(75, 250, 90),
+    mapWallColor = Color(55, 222, 69)
+)

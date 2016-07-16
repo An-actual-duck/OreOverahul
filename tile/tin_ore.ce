@@ -1,0 +1,26 @@
+from core.template.item import Tile, ScrapTier
+from siege.graphic import Color
+from siege.log import Log
+
+tinOre = Tile(
+    name = "Tin Ore",
+    durability = 70,
+    priority = 400,
+    level = 8,
+    groups = ['ore', 'natural'],
+    sounds = 'stone',
+    particleColor = Color(168, 180, 181),
+    mapGroundColor = Color(168, 180, 181),
+    mapWallColor = Color(188, 202, 204)
+)
+
+tinOre.isItem(
+    classification = "Mineral",
+    stack = 99,
+    scraps = ScrapTier.One
+)
+
+
+@tinOre.onCreated
+def onCreated(tile):
+    Log.info("Tin was generated")

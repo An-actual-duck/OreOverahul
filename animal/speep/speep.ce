@@ -1,0 +1,168 @@
+from functools import partial
+# import math
+
+from core.helper import getRandomPath
+from core.monster import BaseMonster, BasicMonsterStates, MonsterState
+from core.sentient import MovementHelpers
+from core.tuning.animal import AnimalTuning
+
+from core.template.animation import Frame, Frames
+from core.template.monster import Monster
+
+from siege import game, InventoryItem
+from siege.util import PixelVector, RangeInt, Rect, Random, Vector
+from siege.util import minutes, seconds, Timer
+
+
+animal = Monster(
+    name = "Speep",
+    isPersistent = True,
+    tuning = AnimalTuning.SPEEP,
+    weight = 60,
+    canDropKey = False,
+    experienceYield = 5,
+    spawnTime = 500,
+    biomes = ["Plains"],
+    growlSound = "mods/core/audio/sfx/monster/speep_growl_[1-5].ogg",
+    hostile = False
+)
+
+animal.hasPhysics(
+    body = Rect(-13, -15, 26, 30),
+    friction = Vector(0.2, 0.2),
+    groundFriction = Vector(0.2, 0.2),
+)
+
+idle = animal.getSpriteFrames(
+    frames = [
+        Frame(33, 2),
+        Frame(64, 2),
+        Frame(95, 2)
+    ],
+    size = PixelVector(31, 42),
+    origin = PixelVector(14, 24)
+)
+
+idleWooly = animal.getSpriteFrames(
+    frames = [
+        Frame(126, 2),
+        Frame(2, 44),
+        Frame(33, 44)
+    ],
+    size = PixelVector(31, 42),
+    origin = PixelVector(14, 24)
+)
+
+jump = animal.getSpriteFrames(
+    frames = [
+        Frame(64, 44),
+        Frame(95, 44),
+        Frame(126, 44),
+        Frame(2, 86),
+        Frame(33, 86)
+    ],
+    size = PixelVector(31, 42),
+    origin = PixelVector(14, 24)
+)
+
+jumpWooly = animal.getSpriteFrames(
+    frames = [
+        Frame(64, 86),
+        Frame(95, 86),
+        Frame(126, 86),
+        Frame(2, 128),
+        Frame(33, 128)
+    ],
+    size = PixelVector(31, 42),
+    origin = PixelVector(14, 24)
+)
+
+death = animal.getSpriteFrames(Frame(2, 2, size=(31, 42), origin=(14, 18)))
+
+animal.animations(
+    start = 'idle',
+    idle = Frames(idle.loop(), time=200),
+    idleWooly = Frames(idleWooly.loop(), time=200),
+    jump = Frames(jump.loop(), time=200),
+    jumpWooly = Frames(jumpWooly.loop(), time=200),
+    death = Frames(idle(1) + death() + idle(1) + death(), time=200),
+    disableLooping = ['jump', 'jumpWooly', 'death']
+)
+
+
+@animal.customize
+class SpeepAnimal(BaseMonster):
+    idleTimes = RangeInt(seconds(3), seconds(10))
+    roamTimes = RangeInt(seconds(0.5), seconds(1.5))
+    fleeTimes = RangeInt(seconds(2), seconds(4))
+    woolTimes = RangeInt(minutes(12), minutes(15))
+    idleChance = .8
+
+    def __init__(self, entity, component):
+        handlers = {}
+        handlers[MonsterState.Idle] = BasicMonsterStates.idle
+        handlers[MonsterState.Roam] = partial(BasicMonsterStates.roam, partial(MovementHelpers.walkJump, jumpOnly=True))
+        handlers[MonsterState.Flee] = partial(BasicMonsterStates.flee, partial(MovementHelpers.walkJump, jumpOnly=True))
+        BaseMonster.__init__(self, entity, dayHandlers=handlers, nightHandlers=handlers)
+        self.isWooly = True
+        self.woolTimer = Timer(self.woolTimes.getRandom())
+        self.currentAnimation = ""
+
+    def shear(self):
+        if self.isWooly:
+            self.dropWool()
+            self.setWooly(False)
+            self.woolTimer.reset(self.woolTimes.getRandom())
+
+    def dropWool(self):
+        realm = self.entity.realm
+        position = self.entity.physics.getCenter()
+        realm.dropped.create(InventoryItem('wool'), position)
+        game.audio.playAt(getRandomPath(self.growlSound), realm.uid, position, broadcast=True)
+
+    def dropMutton(self):
+        realm = self.entity.realm
+        position = self.entity.physics.getCenter()
+        realm.dropped.create(InventoryItem('mutton_raw'), position)
+        game.audio.playAt(getRandomPath(self.growlSound), realm.uid, position, broadcast=True)
+
+    def setWooly(self, wooly):
+        self.isWooly = wooly
+        self.playAnimation(self.currentAnimation)
+
+    def update(self, frameTime):
+        if not self.isWooly:
+            self.woolTimer.update(frameTime)
+            if self.woolTimer.expired():
+                self.setWooly(True)
+        super(SpeepAnimal, self).update(frameTime)
+
+    def changeState(self, state):
+        if state is MonsterState.Death and Random.get(100) <= AnimalTuning.SPEEP.WOOL_DROP_RATE:
+            self.dropWool()
+        if state is MonsterState.Death and Random.get(100) <= 25:
+            self.dropMutton()
+        super(SpeepAnimal, self).changeState(state)
+
+    def handleHit(self, attacker, defender, attackData, damage):
+        if self.state is not MonsterState.Flee or self.stateTime > seconds(2):
+            self.target = attacker
+            self.changeState(MonsterState.Flee)
+
+    def playAnimation(self, name, animation=None):
+        self.currentAnimation = name
+        if self.isWooly:
+            name += "Wooly"
+        super(SpeepAnimal, self).playAnimation(name, animation)
+
+    def save(self, stream):
+        stream.writeBool(self.isWooly)
+        stream.writeUint32(self.woolTimer.remaining())
+
+    def load(self, stream):
+        self.isWooly = stream.readBool()
+        self.woolTimer.reset(stream.readUint32())
+
+    @staticmethod
+    def create(entity, component):
+        return SpeepAnimal(entity, component)

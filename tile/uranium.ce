@@ -1,0 +1,15 @@
+from core.template.item import Tile
+from siege.graphic import Color
+
+Tile(
+    name = "Uranium",
+    drops = 'uranium_ore',
+    durability = 600,
+    priority = 50,
+    level = 84,
+    groups = ['ore', 'natural'],
+    sounds = 'ore',
+    particleColor = Color(85, 242, 46),
+    mapGroundColor = Color(85, 242, 46),
+    mapWallColor = Color(46, 179, 12)
+)

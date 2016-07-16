@@ -1,0 +1,26 @@
+from core.template.item import CraftResult, Item, Genus
+from survival.system.survivalsys import useFood
+
+mutton = Item(
+    name = "MuttonCooked",
+    classification = "Crafted",
+    genus = "mutton_cooked",
+    stack = 99
+)
+
+mutton.craftable(
+    category = "Basics",
+    subcategory = "Essentials",
+    level = 2,
+    experience = 15,
+    serviceRequired = "Campfire",
+    materials = [
+        Genus('mutton_raw', quantity=2)
+    ],
+    results = [
+        CraftResult(quantity=2),
+        CraftResult(quantity=3, quality=100)
+    ]
+)
+
+mutton.usable(useFood, 150)

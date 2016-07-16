@@ -1,0 +1,9 @@
+from core.template.item import Remna, RemnaTier, RemnaType, ScrapTier
+
+Remna(
+    name = "Remna Of Zephyrus",
+    stack = 99,
+    element = RemnaType.Wind,
+    tier = RemnaTier.Four,
+    scraps = ScrapTier.Eight
+)

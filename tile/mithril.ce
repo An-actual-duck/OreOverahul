@@ -1,0 +1,15 @@
+from core.template.item import Tile
+from siege.graphic import Color
+
+Tile(
+    name = "Mithril",
+    drops = 'mithril_ore',
+    durability = 1000,
+    priority = 180,
+    level = 51,
+    groups = ['ore', 'natural'],
+    sounds = 'ore',
+    particleColor = Color(37, 224, 245),
+    mapGroundColor = Color(37, 224, 245),
+    mapWallColor = Color(49, 198, 214)
+)

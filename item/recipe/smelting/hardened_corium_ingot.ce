@@ -1,0 +1,27 @@
+from core.template.item import Item, Material, ScrapTier, CraftResult
+
+ingot = Item(
+    name = "Hardened Corium Ingot",
+    classification = "Crafted",
+    stack = 99,
+    scraps = ScrapTier.Four,
+    tags = ['ingot']
+)
+
+ingot.craftable(
+    category = "Recipes",
+    subcategory = "Smelting",
+    level = 34,
+    experience = 15,
+    serviceRequired = 'Forge',
+    materials = [
+        Material('corium_ingot'),
+        Material('lead_ingot')
+    ],
+    results = [
+        CraftResult(quantity=1),
+        CraftResult(quantity=2, quality=150),
+        CraftResult(quantity=3, quality=200),
+        CraftResult(quantity=4, quality=250)
+    ]
+)
