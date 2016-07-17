@@ -1,0 +1,26 @@
+from core.item.common import usePotion
+from siege import Cooldown
+from siege.util import seconds
+
+
+from core.helper import callEvent
+from core.template.item import Item
+
+carrot = Item(
+    name = "Carrot",
+    classification = "Trophy",
+    genus = "carrot",
+    stack = 99,
+    cooldown = Cooldown("Potion", seconds(5))
+)
+
+
+def consume(amount, args, stats=None):
+    # Consume food Event (player, food_amount, consumed)
+    result = callEvent("consume_food", args['player'], amount, consumed=False)
+    if not result.consumed:
+        # restore HP
+        carrot.usable(usePotion, "HP", 5)
+    else:
+        # survival mod handled hunger
+        carrot.usable(consume, 50)

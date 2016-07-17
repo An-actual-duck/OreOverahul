@@ -1,0 +1,23 @@
+from core.helper import callEvent
+from core.template.item import Item
+
+cherry = Item(
+    name = "Cherry",
+    classification = "Trophy",
+    genus = "cherry",
+    stack = 99
+)
+
+
+def consume(amount, args, stats=None):
+    # Consume food Event (player, food_amount, consumed)
+    result = callEvent("consume_food", args['player'], amount, consumed=False)
+    if not result.consumed:
+        # restore HP
+        pass
+    else:
+        # survival mod handled hunger
+        pass
+
+
+cherry.usable(consume, 50)

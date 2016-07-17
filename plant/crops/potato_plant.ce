@@ -1,0 +1,24 @@
+from core.template.animation import Frame
+from core.template.item import Loot
+from core.template.plant import Plant, PlantStage, PlantStageTimer
+
+from siege.util import minutes, PixelVector, RangeInt
+
+plant = Plant(
+    name = "Potato",
+    growsOn = ['natural'],
+    allowUnderground = False,
+    spaceRequired = PixelVector(32, 32),
+    variations = 1,
+    stages = [
+        PlantStageTimer(duration=RangeInt(minutes(4), minutes(6))),
+        PlantStageTimer(duration=RangeInt(minutes(4), minutes(6))),
+        PlantStage(loot=Loot('food_potato', dropRates={1: 95, 2: 5}))
+    ]
+)
+
+plant.stageAnimations(
+    Frame(0, 0, size=(24, 6), origin=(12, 6)),
+    Frame(0, 8, size=(24, 10), origin=(12, 18)),
+    Frame(0, 20, size=(24, 13), origin=(12, 29))
+)
