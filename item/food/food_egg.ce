@@ -1,0 +1,9 @@
+from core.template.item import Item, ScrapTier
+
+food_egg = Item(
+    name = "Egg",
+    classification = "Trophy",
+    genus = "egg",
+    stack = 99,
+    scraps = ScrapTier.One
+)

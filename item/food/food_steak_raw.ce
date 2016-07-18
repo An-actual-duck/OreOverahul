@@ -1,17 +1,17 @@
-from core.helper import callEvent
-from core.template.item import Item
-
 from core.item.common import usePotion
 from siege import Cooldown
 from siege.util import seconds
 
-mutton = Item(
-    name = "Mutton Raw",
-    classification = "Crafted",
-    genus = "mutton_raw",
+
+from core.helper import callEvent
+from core.template.item import Item
+
+steak_raw = Item(
+    name = "Steak Raw",
+    classification = "Trophy",
+    genus = "steak_raw",
     stack = 99,
     cooldown = Cooldown("Potion", seconds(5))
-
 )
 
 
@@ -20,10 +20,7 @@ def consume(amount, args, stats=None):
     result = callEvent("consume_food", args['player'], amount, consumed=False)
     if not result.consumed:
         # restore HP
-        mutton.usable(usePotion, "HP", 5)
+        steak_raw.usable(usePotion, "HP", 5)
     else:
         # survival mod handled hunger
-        mutton.usable(consume, 50)
-
-
-mutton.usable(consume, 50)
+        steak_raw.usable(consume, 50)

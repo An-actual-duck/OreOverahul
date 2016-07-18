@@ -8,12 +8,12 @@ plant = Plant(
     name = "Onion",
     growsOn = ['natural'],
     allowUnderground = False,
-    spaceRequired = PixelVector(32, 32),
+    spaceRequired = PixelVector(24, 32),
     variations = 1,
     stages = [
         PlantStageTimer(duration=RangeInt(minutes(4), minutes(6))),
         PlantStageTimer(duration=RangeInt(minutes(4), minutes(6))),
-        PlantStage(loot=Loot('food_onion', dropRates={1: 95, 2: 5}))
+        PlantStage(loot=[Loot('food_onion', dropRates={1: 95, 2: 5}), Loot('onion_seed', dropRates={1: 99, 2: 1})])
     ]
 )
 

@@ -5,22 +5,22 @@ from core.item.common import usePotion
 from siege import Cooldown
 from siege.util import seconds
 
-mutton = Item(
-    name = "Mutton Cooked",
-    classification = "Crafted",
-    genus = "mutton_cooked",
+steak_cooked = Item(
+    name = "Steak Cooked",
+    classification = "Trophy",
+    genus = "steak_cooked",
     stack = 99,
     cooldown = Cooldown("Potion", seconds(5))
 )
 
-mutton.craftable(
+steak_cooked.craftable(
     category = "Basics",
     subcategory = "Essentials",
     level = 2,
     experience = 15,
     serviceRequired = "Campfire",
     materials = [
-        Genus('mutton_raw', quantity=2)
+        Genus('steak_raw', quantity=2)
     ],
     results = [
         CraftResult(quantity=2),
@@ -34,7 +34,7 @@ def consume(amount, args, stats=None):
     result = callEvent("consume_food", args['player'], amount, consumed=False)
     if not result.consumed:
         # restore HP
-        mutton.usable(usePotion, "HP", 5)
+        steak_cooked.usable(usePotion, "HP", 5)
     else:
         # survival mod handled hunger
-        mutton.usable(consume, 150)
+        steak_cooked.usable(consume, 150)

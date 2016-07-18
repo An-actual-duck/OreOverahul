@@ -1,11 +1,17 @@
+from core.item.common import usePotion
+from siege import Cooldown
+from siege.util import seconds
+
+
 from core.helper import callEvent
 from core.template.item import Item
 
 potato = Item(
     name = "Potato",
     classification = "Trophy",
-    genus = "potato",
-    stack = 99
+    genus = "peach",
+    stack = 99,
+    cooldown = Cooldown("Potion", seconds(5))
 )
 
 
@@ -14,10 +20,7 @@ def consume(amount, args, stats=None):
     result = callEvent("consume_food", args['player'], amount, consumed=False)
     if not result.consumed:
         # restore HP
-        pass
+        potato.usable(usePotion, "HP", 5)
     else:
         # survival mod handled hunger
-        pass
-
-
-potato.usable(consume, 50)
+        potato.usable(consume, 50)

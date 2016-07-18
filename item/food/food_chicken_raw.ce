@@ -5,13 +5,12 @@ from core.item.common import usePotion
 from siege import Cooldown
 from siege.util import seconds
 
-mutton = Item(
-    name = "Mutton Raw",
+chicken = Item(
+    name = "Chicken Raw",
     classification = "Crafted",
-    genus = "mutton_raw",
+    genus = "chicken_raw",
     stack = 99,
     cooldown = Cooldown("Potion", seconds(5))
-
 )
 
 
@@ -20,10 +19,7 @@ def consume(amount, args, stats=None):
     result = callEvent("consume_food", args['player'], amount, consumed=False)
     if not result.consumed:
         # restore HP
-        mutton.usable(usePotion, "HP", 5)
+        chicken.usable(usePotion, "HP", 5)
     else:
         # survival mod handled hunger
-        mutton.usable(consume, 50)
-
-
-mutton.usable(consume, 50)
+        chicken.usable(consume, 50)
