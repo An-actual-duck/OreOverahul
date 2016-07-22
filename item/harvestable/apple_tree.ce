@@ -6,6 +6,7 @@ from random import randint
 
 from siege.util import minutes, seconds, Vector, PixelRect
 from siege import InventoryItem
+from siege.world.realm import Layer
 
 
 apple_tree = Item(
@@ -14,7 +15,7 @@ apple_tree = Item(
     useTime = 20
 )
 
-apple_tree.placeable(floor_axis = Axis(area=PixelRect(25, 0, 110, 120)),)
+apple_tree.placeable(floor_axis = Axis(area=PixelRect(25, 0, 110, 120), layer=Layer.Back),)
 
 # From sapling to full grown
 growing = apple_tree.getSpriteFrames(

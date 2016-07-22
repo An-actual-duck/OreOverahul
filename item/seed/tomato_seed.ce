@@ -1,8 +1,8 @@
 from core.template.plant import Seed
 
 Seed(
-    name = "Onion Seed",
-    plant = 'onion_plant',
+    name = "Tomato Seed",
+    plant = 'tomato_plant',
     center = 11,
     preview = 'mods/OreOverhaul/plant/crops/mound.png'
 )

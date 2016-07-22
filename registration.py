@@ -3,11 +3,12 @@ from siege import game
 from core.tuning import Tuning
 from core.tuning.item import ItemTuning
 from core.template.item import RemnaTier, RemnaType
-from core.monster.boss import handleBossDefeat
+
 
 def worldLoadEvent(world):
     if world.remnaLevel == 3:
         world.remnaLevel = 4
+
 
 # Called when the mod is loaded
 def register():

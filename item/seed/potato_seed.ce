@@ -1,4 +1,3 @@
-from core.template.animation import Frame
 from core.template.plant import Seed
 
 Seed(
